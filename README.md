@@ -1,5 +1,7 @@
 # smart-home-IoT
 
-This project uses Javascript and smart device API from Wigwag company, controlling the color and brightness of the smart light bulbs.
+This project uses Javascript and smart device API from Wigwag company
 
-This project is a prototype pf smart home and Internet of things.
+We apply the characteristics of music to the characteristics of filament and call dev$ APIs to control the color and brightness of filament(s).
+
+This project can be used as a start point for a music fountain or a prototype for smart home.
