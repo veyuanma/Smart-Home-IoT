@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="bootstrap.css" type="text/css" charset="utf-8">
+	<style type="text/css">
+	body {
+		padding-top: 40px;
+		padding-bottom: 40px;
+		padding-left: 100px;
+		padding-right: 100px;
+		background: #EEEEEE;
+	}
+	p,ul {
+		text-align: justify;
+		font-size:larger;
+		position: relative;
+		left:10px;
+		padding-right: 20px;
+	}
+	section{
+		background-color: #FFFFFF;
+	}
+	img{
+		position:relative;
+		left:150px;
+	}
+	h1{
+		position: relative;
+		left:10px;
+		font-size: 30px;
+
+	}
+	h2{
+		position: relative;
+		left:10px;
+		font-size: 20px;
+	}
+
+	.code1, .code2 {
+		font-family: "Courier New",Monospace;
+		font-size:15px;
+		text-align: center;
+		
+	}
+
+	.command1 {
+		font-family: "Courier New",Monospace;
+	}
+
+	</style>
+</head>	
+
+<body>
+	<a id="top"></a>
+	<section id="title">
+		<div class="theme">
+			<h1 style="position:relative;left:150px;padding-top:20px;font-size:40px;border:3px">Visual Symphony based on DeviceJS Platform</h1>
+			<p style="position:relative;left:400px; font-style:italic">University of Southern California</p>
+			<p style="position:relative;left:350px; font-style:italic">Designed by Yuan Ma and Qingqing Zheng</p>
+			<br>
+			<p></p>
+		</div>
+	</sector>
+
+	<section id="overview">
+		<div class="page-header">
+			<h1>Overview</h1>
+		</div>
+		<div class="row">
+			<div class="span12">
+				<p>This is the final project for EE579, Wireless and Mobile Networks Design and Laboratory, 2016 Spring. Special thanks to Professor Bhaskar Krishnamachari, TA Pradipta Ghosh and WigWag company.</p>
+				<p>This project is the interaction of visual art and computer technology. We apply the characteristics of music to the characteristics of filament and call dev$ APIs to control the color and brightness of filament(s). This project can be used as a start point for a music fountain or a prototype for smart home.
+			</div>
+		</div>
+	</section>
+	<br>
+	<section id="architecture">
+		<div class="page-header">
+			<h1>Modules Architecure</h1>
+		</div>
+		<div class="row">
+			<div class="span12">
+				<img src="flow.png" style="width: 700px;height:500px;">
+			</div>
+		</div>
+		<p>There are two parallel process: one is for detectiing frequency and another is for controlling the filaments laid on deviceJS. After reading Muaic.wav file, do the fft transform, then we get the music frequency and amplitude. once we get those, we write them into the outputfile. For the other process, we need firstly start dedviceJs server, running controller on that. Then next, the controller.js will read the output file and map frequency and amplitude into color domain and brightness domain. After we get color value and brightness value, using dev$selectByID API to set the filament color and brightness.
+	</section>
+
+	<br>
+	<section id="music">
+		<div class="page-header">
+			<h1>Music Detection Part</h1>
+		</div>
+		<div class="row">
+			<div class="span12"></div>
+		</div>
+		<div class="principle">
+			<h2>Principle</h2>
+			<ul>
+				<li>Frequency and Amplitude detection and extraction from a music file(Pyhton used)</li>
+				<li>Save frequency and amplitude as data.txt</li>
+				<li>Get frequency and Amplitude, and assign them to values between 0.0-1.0(javascript used)</li>
+			</ul>
+		</div>
+		<div class="code">
+			<h2>Code Snippet</h2>
+			<div class="code1">
+			<p>
+				while len(data) == chunk*swidth:<br>
+				&nbsp&nbspstream.write(Data)<br>
+				&nbsp&nbspindata = np.array(wave.struct.unpack("%dh"%(len(data)/swidth),\
+                                         data))*window<br>
+                &nbsp&nbspfftData=abs(np.fft.rfft(indata))**2<br>
+                &nbsp&nbspamp=math.sqrt(max(fftData[1:]))<br>
+                &nbsp&nbspwhich = fftData[1:].argmax() + 1<br>
+                &nbsp&nbspif which != len(fftData)-1:<br>
+                &nbsp&nbsp&nbsp&nbspy0,y1,y2 = np.log(fftData[which-1:which+2:])<br>
+                &nbsp&nbsp&nbsp&nbspx1 = (y2 - y0) * .5 / (2 * y1 - y2 - y0)<br>
+                &nbsp&nbsp&nbsp&nbspthefreq = (which+x1)*RATE/chunk<br>
+                &nbsp&nbsp&nbsp&nbspprint str(thefreq)+" "+str(amp)<br>
+                &nbsp&nbspelse:<br>
+                &nbsp&nbsp&nbsp&nbspthefreq = which*RATE/chunk<br>
+                &nbsp&nbsp&nbsp&nbspprint str(thefreq)+" "+str(amp)
+			</p>
+			</div>
+			
+		</div>
+
+
+	</section>
+
+	<br>
+	<section id="devicejs">
+		<div class="page-header">
+			<h1>DeviceJS part</h1>
+		</div>
+		<div class="row">
+			<div class="span12"></div>
+		</div>
+		<div class="principle">
+			<p>Read from data.txt to get the frequency and amplitude of music file. By doing a mathematical calculationa and normalization, map the frequency into color and amplitude into brightness. Then call the devicejs dev$ API to parse the color and brightness to different filaments, in which way we can control the filament.</p>
+			<h2>Principle</h2>
+			<ul>
+				<li>Start the DeviceJS server: devicejs start</li>
+				<li>Start the WigWag controller: sudo devicejs run ./</li>
+				<li>Run controller.js file to start the controlling process</li>
+			</ul>
+		</div>
+		<div class="code">
+			<h2>Code Snippet</h2>
+			<div class="code2">
+				<p>
+					if(freq<=0){ color=0.01; }<br>
+					else if(freq>1050){ color=1.0; }<br>
+			    	else{<br>
+					&nbsp&nbspcolor=freq/1050;<br>
+					&nbsp&nbspcolor=color.toFixed(3); }<br>
+					<br>
+					if(amp<=0){ brightness=0.15; }<br>
+			    	else if (amp>10000000){ brightness =1.0; }<br>
+			    	else{<br>
+			        &nbsp&nbspbrightness= amp/10000000*1.5;<br>
+			        &nbsp&nbspbrightness=brightness.toFixed(3);<br>
+			        &nbsp&nbspif(brightness<0.15)<br>
+			        	&nbsp&nbsp&nbsp&nbspbrightness=0.15<br>
+			        &nbsp&nbspif(brightness>1.0)<br>
+			        	&nbsp&nbsp&nbsp&nbspbrightness=1.0; }<br>
+			        <br>
+			        dev$.selectByID('WDFL000012').set('hsl',{h:color,s:1,l:brightness});	
+				</p>
+			</div>
+			
+		</div>
+		<div class="command">
+			<h2>Command Line</h2>
+			<div class="command1">
+				<p>
+					&nbsp&nbsp$:python detector.py seeyouagain.wav > data.txt<br>
+					&nbsp&nbsp$:devicejs start<br>
+					&nbsp&nbsp$:sudo devicejs run ./<br>
+					&nbsp&nbsp$:run controller.js<br>
+
+				</p>
+			</div>
+		</div>
+	</section>
+	
+	<br>
+	<section id="video">
+		<div class="page-header">
+			<h1>Experiment Demo 1</h1>
+		</div>
+		<div class="row">
+			<div class="span12">
+				<p>The following is the experiment demo when connecting to one filament:</p>
+				<iframe width="560" height="315" src="https://www.youtube.com/embed/HsNoTDFGxck" frameborder="0" allowfullscreen>
+				</iframe>
+			</div>
+		</div>
+		<br>
+		<div class="page-header">
+			<h1>Experiment Demo 2</h1>
+		</div>
+		<div class="row">
+			<div class="span12">
+				<p>The following is the experiment demo when connecting to two filaments:</p>
+				<iframe width="560" height="315" src="https://www.youtube.com/embed/feRrWasbhU4" frameborder="0" allowfullscreen>
+				</iframe>
+			</div>
+		</div>
+	</section>
+	<br>
+	<br>
+	<section id="troubleshooting">
+		<div class="page-header">
+			<h1>Troubleshooting</h1>
+		</div>
+		<div class="row">
+			<div class="span12">
+				<p>The following problems are those we faced when doing the project, and you may encounter some of these problems as well. Please refer to this section to troubleshoot.</p>
+				<ul>
+					<li>Make sure that you meet all the software and hardware requirement before doing the project, e.g., gcc and g++ version.</li>
+					<li>If you cannot run the detector.py and "EOFError" pops up, check if you download the complete .wav music file
+						</li>
+					<li>If you want to do some modification of the code or use a different music file, make sure you map the range of frequency and amplitude to the proper range of color and brightness. For wigwag device specifically, the range of color and brightness are both between 0.0 to 1.0.</li>
+					<li>If the code is fine and the connection between the computer and the board is fine, but the filament has no reaction, wait for a few second, the network delay between the controller and the filament is quite high, and it may take 10 or more seconds for the controlling packet to be sent to the filament. If the filament still has no reaction for a while, check the controller terminal whether the network connect is still on and whether the controller buffer is overflow or the transmitting mechanism is timeout.</li>
+			</div>
+		</div>
+	</section>
+
+
+	<br>
+	<section id="github">
+		<div class="page-header">
+			<h1>Open Source</h1>
+		</div>
+		<div class="row">
+			<div class="span12">
+				<p><a href="https://github.com/yuanyuanma/EE579project">project github repository</a></p>
+				<p><a href="579slides.pptx">ppt slides for the project</a>&nbsp(click to download)</p>
+			</div>
+		</div>
+	</section>
+
+
+	<br>
+	<section id="support">
+		<div class="page-header">
+			<h1>Software and Hardware Support</h1>
+		</div>
+		<div class="row">
+			<div class="span12">
+				<ul>
+					<li>Software support: Python 2.7.3, Node v4.3.1, gcc 4.8.1, g++ 4.8.1</li>
+					<li>HardWare support: WigWag devices(filament), USB cable A-Male to B-Male</li>
+					<li>Operating system support: Ubuntu 12. or higher</li>
+					<li>Platform support: deviceJS + modules</li>
+				</ul>
+			</div>
+		</div>
+	</section>
+
+	<br>
+	<section id="contact">
+		<div class="page-header">
+			<h1>Contact</h1>
+		</div>
+		<div class="row">
+			<div class="span12">
+				<p><u>Email addresses:</u>
+					<blockquote>
+						<p>Qingqing Zheng:&nbspqingqinz@usc.edu</p>
+						<p>Yuan Ma:&nbspmayuan@usc.edu</p>
+						<br>
+					</blockquote>
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<a href="#top">Go to top</a>
+</body>	
+</html>
